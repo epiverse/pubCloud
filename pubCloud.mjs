@@ -29,6 +29,42 @@ async function embedPMIDs(pmids=[36745477,39992653,12611807]){
     return embeds
 }
 
+function saveFile(txt=':-)',fileName="hello.txt") { // x is the content of the file
+	var bb = new Blob([txt]);
+   	var url = URL.createObjectURL(bb);
+	var a = document.createElement('a')
+   	a.href=url;
+	if (fileName){
+		if(typeof(fileName)=="string"){ // otherwise this is just a boolean toggle or something of the sort
+			a.download=fileName;
+		}
+		a.click() // then download it automatically
+	}
+	return a
+}
+
+async function readTextFile(){
+	let ip = document.createElement('input')
+	ip.type='file'
+    ip.onload=function(that){
+        4
+    }
+}
+    
+	//ip.click()
+	const reader = new FileReader();
+    reader.onload = function(e) {
+    document.getElementById('fileContent').textContent = e.target.result;
+      };
+
+      reader.onerror = function(e) {
+        document.getElementById('fileContent').textContent = "Error reading file: " + e.message;
+      };
+
+      reader.readAsText(file);
+    }
+}
+
 export{
     GEM,
     embed,
