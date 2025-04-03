@@ -34,11 +34,14 @@ function saveFile(txt=':-)', fileName="hello.txt") {
     var bb = new Blob([txt]);
     var url = URL.createObjectURL(bb);
     var a = document.createElement('a')
+    a.hidden=true
+    document.body.appendChild(a)
     a.href = url;
     if (fileName) {
         if (typeof (fileName) == "string") {
             // otherwise this is just a boolean toggle or something of the sort
             a.download = fileName;
+            a.parentElement.removeChild(a) // cleanup
         }
         a.click()
         // then download it automatically
@@ -46,32 +49,21 @@ function saveFile(txt=':-)', fileName="hello.txt") {
     return a
 }
 
-async function readTextFile() {
-    let ip = document.createElement('input');
-    ip.type = 'file'
-    let fr = new FileReader();
-    fr.onload = function() {
-        let fname = fr.files[0].name.match(/(.+)\.[^\.]+/)[1] + '.csv'
-        debugger
+async function readTextFile(fun=console.log) {
+    let loadFile = document.createElement('input')
+    loadFile.type = 'file';
+    loadFile.hidden = true;
+    document.body.appendChild(loadFile);
+    loadFile.onchange = evt => {
+        let fr = new FileReader();
+        fr.onload = function() {
+            fun(fr.result)
+            loadFile.parentElement.removeChild(loadFile) // cleanup
+        }
+        fr.readAsText(loadFile.files[0]);
     }
-    fr.readAsText(fr.files[0]);
+    loadFile.click()
 }
-
-/*
-	//ip.click()
-	const reader = new FileReader();
-    reader.onload = function(e) {
-    document.getElementById('fileContent').textContent = e.target.result;
-      };
-
-      reader.onerror = function(e) {
-        document.getElementById('fileContent').textContent = "Error reading file: " + e.message;
-      };
-
-      reader.readAsText(file);
-    }
-}
-*/
 
 export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile}
 
