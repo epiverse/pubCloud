@@ -58,7 +58,24 @@ async function readTextFile(fun=console.log) {
     loadFile.click()
 }
 
-export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile}
+function tsv2json(tsv){
+    let json = tsv.split(/[\n\r]+/).map(row=>row.split(/\t/))
+    // transpose json
+    let jsonT=[]
+    let attrs = json[0]
+    attrs.forEach((attr,j)=>{
+        jsonT[attr]=[]
+    })
+    
+    return jsonT
+}
+
+async function assembleFromSource(url='https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/5%20years%20data%20publications.tsv'){
+    let tsv = tsv2json(await (await fetch(url)).text())
+    debugger
+}
+
+export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource}
 
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
 // embedPMID = (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID
