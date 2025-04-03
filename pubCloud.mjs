@@ -30,22 +30,15 @@ async function embedPMIDs(pmids=[36745477, 39992653, 12611807]) {
 }
 
 function saveFile(txt=':-)', fileName="hello.txt") {
-    // x is the content of the file
     var bb = new Blob([txt]);
     var url = URL.createObjectURL(bb);
     var a = document.createElement('a')
     a.hidden=true
     document.body.appendChild(a)
     a.href = url;
-    if (fileName) {
-        if (typeof (fileName) == "string") {
-            // otherwise this is just a boolean toggle or something of the sort
-            a.download = fileName;
-            a.parentElement.removeChild(a) // cleanup
-        }
-        a.click()
-        // then download it automatically
-    }
+    a.download = fileName;
+    a.click()
+    a.parentElement.removeChild(a) // cleanup
     return a
 }
 
