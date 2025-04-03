@@ -58,6 +58,7 @@ async function readTextFile(fun=console.log) {
     loadFile.click()
 }
 
+/*
 function tsv2json(tsv){
     let json = tsv.split(/[\n\r]+/).map(row=>row.split(/\t/))
     // transpose json
@@ -68,15 +69,37 @@ function tsv2json(tsv){
         json.slice(1).forEach((row,i)=>{
             jsonT[attr][i]=json[i][j]=row[j]
         })
-    })
-    
+    })    
     return jsonT
+}
+*/
+
+function tsv2json(tsv){
+    let json = tsv.split(/[\n\r]+/).map(row=>row.split(/\t/))
+    let attrs = json[0]
+    json=json.slice(1).map((row,i)=>{
+        let rowObj={}
+        attrs.forEach((attri,j)=>{
+            rowObj[attri]=row[j]
+        })
+        return rowObj
+    })
+    return json
 }
 
 // http://localhost:8000/pubCloud/
 
 async function assembleFromSource(url='https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/5%20years%20data%20publications.tsv'){
     let json = tsv2json(await (await fetch(url)).text())
+    // get abstracts
+    json.map(async function(x,i){
+        if((x.PubMedID.length>0)&(i<10)){
+            x.PubMedAbstract= await embedPMID(x.PubMedID)
+        }else{
+            x.PubMedAbstract=null
+        }
+        return x
+    })
     return json
     //debugger
 }
