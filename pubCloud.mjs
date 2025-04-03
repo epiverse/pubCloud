@@ -65,14 +65,20 @@ function tsv2json(tsv){
     let attrs = json[0]
     attrs.forEach((attr,j)=>{
         jsonT[attr]=[]
+        json.slice(1).forEach((row,i)=>{
+            jsonT[attr][i]=json[i][j]=row[j]
+        })
     })
     
     return jsonT
 }
 
+// http://localhost:8000/pubCloud/
+
 async function assembleFromSource(url='https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/5%20years%20data%20publications.tsv'){
-    let tsv = tsv2json(await (await fetch(url)).text())
-    debugger
+    let json = tsv2json(await (await fetch(url)).text())
+    return json
+    //debugger
 }
 
 export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource}
