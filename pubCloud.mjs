@@ -86,3 +86,4 @@ export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromS
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
 // embedPMID = (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID
 // txt = await (await import('./pubCloud.mjs')).embedPMID(36745477)
+// json = await (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).assembleFromSource()
