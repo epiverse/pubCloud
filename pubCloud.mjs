@@ -87,11 +87,27 @@ function tsv2json(tsv){
     return json
 }
 
-// http://localhost:8000/pubCloud/
+async function indexPubMedIDs(json){
+    if(!json){
+        json = await assembleFromSource()
+    }
+    let PubMedIDs = json
+        .filter(x=>x.PubMedID)
+        .filter(x=>x.PubMedID.length>0)
+        .map(x=>x.PubMedID)
+        .slice(0,10) // while debugging
+    let indexedPubMedIDs=await embedPMIDs(PubMedIDs)
+    return indexedPubMedIDs
+}
+
+
+// master assembler
 
 async function assembleFromSource(url='https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/5%20years%20data%20publications.tsv'){
-    let json = tsv2json(await (await fetch(url)).text())
+    let json = await tsv2json(await (await fetch(url)).text())
     // get abstracts
+
+    /*
     json.map(async function(x,i){
         if((x.PubMedID.length>0)&(i<10)){
             x.PubMedAbstract= await embedPMID(x.PubMedID)
@@ -100,11 +116,21 @@ async function assembleFromSource(url='https://raw.githubusercontent.com/epivers
         }
         return x
     })
+    */
     return json
     //debugger
 }
 
-export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource}
+export {
+    GEM,
+    embed,
+    embedPMID,
+    embedPMIDs,
+    readTextFile,
+    saveFile,
+    assembleFromSource,
+    indexPubMedIDs
+}
 
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
 // embedPMID = (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID
