@@ -9,7 +9,7 @@ async function embedPMID(pmid=36745477) {
     // x = await (await import('./pubCloud.mjs')).embedPMID()
     // x = await (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID()
     let txt = await (await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=${pmid}&retmode=text&rettype=abstract`)).text()
-    let emb = await embed(txt)
+    let emb = await embed(txt.slice(0,35314))
     return {
         pmid: pmid,
         abstract: txt,
@@ -95,30 +95,30 @@ async function indexPubMedIDs(json){
         .filter(x=>x.PubMedID)
         .filter(x=>x.PubMedID.length>0)
         .map(x=>x.PubMedID)
-        .slice(0,10) // while debugging
+        //.slice(20,30) // while debugging
     let indexedPubMedIDs=await embedPMIDs(PubMedIDs)
     return indexedPubMedIDs
 }
+async function listPubMedIDs(json){
+    if(!json){
+        json = await assembleFromSource()
+    }
+    let PubMedIDs = json
+        .filter(x=>x.PubMedID)
+        .filter(x=>x.PubMedID.length>0)
+        .map(x=>x.PubMedID)    
+    return PubMedIDs
+}
 
+// Get all absracts from NCBI eutils in batch
+
+async function getAllAbstracts(json){}
 
 // master assembler
 
 async function assembleFromSource(url='https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/5%20years%20data%20publications.tsv'){
     let json = await tsv2json(await (await fetch(url)).text())
-    // get abstracts
-
-    /*
-    json.map(async function(x,i){
-        if((x.PubMedID.length>0)&(i<10)){
-            x.PubMedAbstract= await embedPMID(x.PubMedID)
-        }else{
-            x.PubMedAbstract=null
-        }
-        return x
-    })
-    */
     return json
-    //debugger
 }
 
 export {
@@ -129,7 +129,8 @@ export {
     readTextFile,
     saveFile,
     assembleFromSource,
-    indexPubMedIDs
+    indexPubMedIDs,
+    listPubMedIDs
 }
 
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
