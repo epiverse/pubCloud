@@ -109,50 +109,42 @@ async function listPubMedIDs(docs) {
 }
 
 // Get all absracts from NCBI eutils in batch
-let countBatch=0
+let countBatch = 0
 async function getAllAbstracts(docs) {
-    let txts = ''
     if (!docs) {
         docs = await assembleFromSource()
     }
+    let txts = ''
     const ids = await listPubMedIDs()
     const k = 250
-    const tLag = 10000
-    // get abstracts in batches of 250
-    for(let i=0 ; i<ids.length ; i=i+k){
-        let batchPubMedIDs = ids.slice(i,i+k)
-        //console.log(batchPubMedIDs)
-        await setTimeout(async function(){
-            countBatch++
-            console.log(`batch #${countBatch}, [n=${batchPubMedIDs.length}] index #${i}`)
-            txts += await (await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=${batchPubMedIDs.join()}&retmode=text&rettype=abstract`)).text()
-        },tLag*countBatch)
+    let countBatch = 0
+    async function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    for (let i = 0; i < ids.length; i = i + k) {
+        countBatch++
+        let batchPubMedIDs = ids.slice(i, i + k)
+        console.log(`batch #${countBatch}, [n=${batchPubMedIDs.length}] index #${i}`)
+        txts += await (await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=${batchPubMedIDs.join()}&retmode=text&rettype=abstract`)).text()
+        await delay(10000)
     }
     return txts
+    // \nPMID: 39255366
 }
 
 // master assembler
 
 async function assembleFromSource(url='https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/5%20years%20data%20publications.tsv') {
     let docs = await tsv2json(await (await fetch(url)).text());
-    docs = docs.map((x,i)=>{
-        x.i=i
+    docs = docs.map( (x, i) => {
+        x.i = i
         return x
-    })
+    }
+    )
     return docs
 }
 
-export {
-    GEM,
-    embed,
-    embedPMID,
-    embedPMIDs,
-    readTextFile,
-    saveFile,
-    assembleFromSource,
-    indexPubMedIDs,
-    listPubMedIDs,
-    getAllAbstracts}
+export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts}
 
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
 // embedPMID = (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID
