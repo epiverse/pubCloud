@@ -132,9 +132,28 @@ async function getAllAbstracts(docs) {
     //\nPMID: 39255366
 }
 
-async function indexAbstracts(){
+async function indexAbstracts(url='https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/abstractsText.txt'){
     // index abstracts
-    let txts = await (await fetch('https://github.com/epiverse/pubCloud/raw/refs/heads/main/abstractsText.txt')).text()
+    let txts = await (await fetch(url)).text()
+    // txt.split(/\n\n\n/)[0].match(/\nPMID: ([\w]+)/)[1]
+    let idxedAbstracts = txts.split(/\n\n\n/)
+        .map((x,i)=>{
+            let pmid = NaN
+            //try{
+                pmid = x.match(/\nPMID: ([\w]+)/)[1]
+            //} catch (err){
+            //    console.log(i,err)
+            //}
+            let idx={
+                txt:x,
+                pmid:pmid,
+                i:i
+            }
+            //console.log(idx)
+            return idx
+        })
+    // [0].match(/\nPMID: ([\w]+)/)
+    return idxedAbstracts
 }
 
 
@@ -150,7 +169,7 @@ async function assembleFromSource(url='https://raw.githubusercontent.com/epivers
     return docs
 }
 
-export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts}
+export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts}
 
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
 // embedPMID = (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID
