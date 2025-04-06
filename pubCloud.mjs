@@ -129,8 +129,14 @@ async function getAllAbstracts(docs) {
         await delay(10000)
     }
     return txts
-    // \nPMID: 39255366
+    //\nPMID: 39255366
 }
+
+async function indexAbstracts(){
+    // index abstracts
+    let txts = await (await fetch('https://github.com/epiverse/pubCloud/raw/refs/heads/main/abstractsText.txt')).text()
+}
+
 
 // master assembler
 
