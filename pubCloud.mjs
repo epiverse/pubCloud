@@ -4,6 +4,7 @@ console.log('importing from pubCloud.mjs');
 const GEM = (await import('https://episphere.github.io/gemini/gem.mjs')).GEM
 const embed = (new GEM).embed
 //const embed = (new (await import('https://episphere.github.io/gemini/gem.mjs')).GEM).embed
+const localforage = (await import('https://cdn.jsdelivr.net/npm/localforage@1.10.0/+esm')).default
 
 async function embedPMID(pmid=36745477) {
     // x = await (await import('./pubCloud.mjs')).embedPMID()
@@ -60,8 +61,24 @@ async function readTextFile(fun=console.log) {
     loadFile.click()
 }
 
+async function embeddAbstracts(abss){
+    if(!abss){
+        abss = await (await import('./pubCloud.mjs')).indexAbstracts()
+    }
+    for(let i=0 ; i<abss.length ; i++){
+        console.log(`${i}: embeding pmid ${abss[i].pmid}`)
+        try{
+            abss[i].embed = await embed(abss[i].txt.slice(0,35314))
+        }catch(err){
+            console.log(err)
+            abss[i].embed = NaN
+        } 
+    }
+    return abss
+}
+
 /*
-function tsv2json(tsv){
+function tsv2json(tsv){ 
     let json = tsv.split(/[\n\r]+/).map(row=>row.split(/\t/))
     // transpose json
     let jsonT=[]
@@ -156,8 +173,62 @@ async function indexAbstracts(url='https://raw.githubusercontent.com/epiverse/pu
     return idxedAbstracts
 }
 
+async function mendEmbeddedAbstracts(embAbs){
+    if(!embAbs){
+        embAbs = await(await fetch('./yyy.json')).json()
+    }
+    // -- unfinished
+}
 
-// master assembler
+function parseAbs(txt){
+    let av = txt.split(/\n\n/g)
+    return {
+        publ:av[0],
+        title:av[1],
+        authors:av[2],
+        authInfo:av[3],
+        abstract:av[4],
+        copyRight:av[5],
+        doi:av[6],
+        conflict:av[7]
+    }
+}
+
+// abs assembler
+
+async function absAssembler(abs){ //inputs raw twxt file
+    if(!abs){
+        abs = await indexAbstracts()
+    }
+    // parse
+
+    abs = abs.map(x=>{
+        let av = x.txt.split(/\n\n/g)
+        x.publ=av[0];
+        x.title=av[1];
+        x.authors=av[2];
+        x.authInfo=av[3];
+        x.abstract=av[4];
+        x.copyRight=av[5];
+        x.doi=av[6];
+        x.conflict=av[7];
+        return x
+    })
+    return abs
+}
+
+async function embedTitleAbs(abs){
+    if(!abs){
+        abs = await absAssembler()
+    }
+    for(let i=0 ; i<abs.length ; i++){
+        let txti = `TITLE: ${abs[i].title} \nABSTRACT: ${abs[i].abstract}`
+        abs[i].embed = await embed(txti.slice(0,35000))
+        console.log(`Embedding ${i}/${abs.length}`)
+    }
+    return abs
+}
+// docs assembler
 
 async function assembleFromSource(url='https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/5%20years%20data%20publications.tsv') {
     let docs = await tsv2json(await (await fetch(url)).text());
@@ -169,7 +240,7 @@ async function assembleFromSource(url='https://raw.githubusercontent.com/epivers
     return docs
 }
 
-export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts}
+export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts,embeddAbstracts,parseAbs,absAssembler,embedTitleAbs}
 
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
 // embedPMID = (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID
