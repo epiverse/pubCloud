@@ -228,6 +228,18 @@ async function embedTitleAbs(abs){
     }
     return abs
 }
+
+// generate tensor tsv file
+
+async function json4tsvTensor(jsn){
+    if(!jsn){
+        jsn= await (await fetch('./embedTitleAbs.json')).json()
+    }
+    jsn = jsn.map(x=>x.embed) // extract embeddings
+    let tsv = jsn.map(x=>x.join('\t')).join('\n')
+    return tsv
+}
+
 // docs assembler
 
 async function assembleFromSource(url='https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/5%20years%20data%20publications.tsv') {
@@ -240,7 +252,7 @@ async function assembleFromSource(url='https://raw.githubusercontent.com/epivers
     return docs
 }
 
-export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts,embeddAbstracts,parseAbs,absAssembler,embedTitleAbs}
+export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts,embeddAbstracts,parseAbs,absAssembler,embedTitleAbs,json4tsvTensor}
 
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
 // embedPMID = (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID
