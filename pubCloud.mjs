@@ -254,14 +254,22 @@ async function assembleFromSource(url='https://raw.githubusercontent.com/epivers
 
 // create annotation files for existing embeddings, projector.tensorflow.org style
 
-async function metaCreator(docs,keyPmid){
+async function metaCreator(docs,keyPmids){
     if(!docs){
         docs = await assembleFromSource()
     }
     if(!keyPmids){
         keyPmids= await (await fetch(`https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/keyPmids.json`)).json()
     }
-    debugger
+    // get branches for keyPmids
+    let branches = keyPmids.map(ki=>{
+        let di = docs.filter(d=>(ki==d.PubMedID))
+        console.log(ki,di)
+        //return di[0].Branch
+
+        //(38016281181).toString().slice(0,8))
+    })
+    return branches
 }
 
 
