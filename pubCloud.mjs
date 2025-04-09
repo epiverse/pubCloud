@@ -252,7 +252,21 @@ async function assembleFromSource(url='https://raw.githubusercontent.com/epivers
     return docs
 }
 
-export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts,embeddAbstracts,parseAbs,absAssembler,embedTitleAbs,json4tsvTensor}
+// create annotation files for existing embeddings, projector.tensorflow.org style
+
+async function metaCreator(docs,keyPmid){
+    if(!docs){
+        docs = await assembleFromSource()
+    }
+    if(!keyPmids){
+        keyPmids= await (await fetch(`https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/keyPmids.json`)).json()
+    }
+    debugger
+}
+
+
+
+export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts,embeddAbstracts,parseAbs,absAssembler,embedTitleAbs,json4tsvTensor,metaCreator}
 
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
 // embedPMID = (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID
