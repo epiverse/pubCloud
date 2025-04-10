@@ -254,7 +254,7 @@ async function assembleFromSource(url='https://raw.githubusercontent.com/epivers
 
 // create annotation files for existing embeddings, projector.tensorflow.org style
 
-async function metaCreator(docs,keyPmids){
+async function metaCreatorBranches(docs,keyPmids){
     if(!docs){
         docs = await assembleFromSource()
     }
@@ -263,10 +263,10 @@ async function metaCreator(docs,keyPmids){
     }
     // get branches for keyPmids
     let branches = keyPmids.map(ki=>{
-        let di = docs.filter(d=>(ki==d.PubMedID))
+        let di = docs.filter(d=>(ki.toString().slice(0,8)==d.PubMedID))
         console.log(ki,di)
-        //return di[0].Branch
-
+         return di[0].Branch
+        
         //(38016281181).toString().slice(0,8))
     })
     return branches
@@ -274,7 +274,7 @@ async function metaCreator(docs,keyPmids){
 
 
 
-export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts,embeddAbstracts,parseAbs,absAssembler,embedTitleAbs,json4tsvTensor,metaCreator}
+export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts,embeddAbstracts,parseAbs,absAssembler,embedTitleAbs,json4tsvTensor,metaCreatorBranches}
 
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
 // embedPMID = (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID
