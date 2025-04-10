@@ -290,7 +290,8 @@ async function metaCreatorBranches(docs, keyPmids) {
     for (let i = 0; i < branches.length; i++) {  // rows
         metaTSV += `\n${i + 1}\t${branches[i].join(',')}`
         for (let j = 0; j < listOfBranches.length; j++) {
-            metaTSV += `\t${listOfBranches[j]}`
+            metaTSV += `\t${branches[i].filter(x=>(x==listOfBranches[j])).length>0}`
+            //metaTSV += `\t${listOfBranches[j]}`
         }
     }
     saveFile(metaTSV, 'metaBranch.tsv')
