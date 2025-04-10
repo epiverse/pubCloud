@@ -61,18 +61,18 @@ async function readTextFile(fun=console.log) {
     loadFile.click()
 }
 
-async function embeddAbstracts(abss){
-    if(!abss){
+async function embeddAbstracts(abss) {
+    if (!abss) {
         abss = await (await import('./pubCloud.mjs')).indexAbstracts()
     }
-    for(let i=0 ; i<abss.length ; i++){
+    for (let i = 0; i < abss.length; i++) {
         console.log(`${i}: embeding pmid ${abss[i].pmid}`)
-        try{
-            abss[i].embed = await embed(abss[i].txt.slice(0,35314))
-        }catch(err){
+        try {
+            abss[i].embed = await embed(abss[i].txt.slice(0, 35314))
+        } catch (err) {
             console.log(err)
             abss[i].embed = NaN
-        } 
+        }
     }
     return abss
 }
@@ -149,81 +149,83 @@ async function getAllAbstracts(docs) {
     //\nPMID: 39255366
 }
 
-async function indexAbstracts(url='https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/abstractsText.txt'){
+async function indexAbstracts(url='https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/abstractsText.txt') {
     // index abstracts
     let txts = await (await fetch(url)).text()
     // txt.split(/\n\n\n/)[0].match(/\nPMID: ([\w]+)/)[1]
-    let idxedAbstracts = txts.split(/\n\n\n/)
-        .map((x,i)=>{
-            let pmid = NaN
-            //try{
-                pmid = x.match(/\nPMID: ([\w]+)/)[1]
-            //} catch (err){
-            //    console.log(i,err)
-            //}
-            let idx={
-                txt:x,
-                pmid:pmid,
-                i:i
-            }
-            //console.log(idx)
-            return idx
-        })
+    let idxedAbstracts = txts.split(/\n\n\n/).map( (x, i) => {
+        let pmid = NaN
+        //try{
+        pmid = x.match(/\nPMID: ([\w]+)/)[1]
+        //} catch (err){
+        //    console.log(i,err)
+        //}
+        let idx = {
+            txt: x,
+            pmid: pmid,
+            i: i
+        }
+        //console.log(idx)
+        return idx
+    }
+    )
     // [0].match(/\nPMID: ([\w]+)/)
     return idxedAbstracts
 }
 
-async function mendEmbeddedAbstracts(embAbs){
-    if(!embAbs){
-        embAbs = await(await fetch('./yyy.json')).json()
+async function mendEmbeddedAbstracts(embAbs) {
+    if (!embAbs) {
+        embAbs = await (await fetch('./yyy.json')).json()
     }
     // -- unfinished
 }
 
-function parseAbs(txt){
+function parseAbs(txt) {
     let av = txt.split(/\n\n/g)
     return {
-        publ:av[0],
-        title:av[1],
-        authors:av[2],
-        authInfo:av[3],
-        abstract:av[4],
-        copyRight:av[5],
-        doi:av[6],
-        conflict:av[7]
+        publ: av[0],
+        title: av[1],
+        authors: av[2],
+        authInfo: av[3],
+        abstract: av[4],
+        copyRight: av[5],
+        doi: av[6],
+        conflict: av[7]
     }
 }
 
 // abs assembler
 
-async function absAssembler(abs){ //inputs raw twxt file
-    if(!abs){
+async function absAssembler(abs) {
+    //inputs raw twxt file
+    if (!abs) {
         abs = await indexAbstracts()
     }
     // parse
 
-    abs = abs.map(x=>{
+    abs = abs.map(x => {
         let av = x.txt.split(/\n\n/g)
-        x.publ=av[0];
-        x.title=av[1];
-        x.authors=av[2];
-        x.authInfo=av[3];
-        x.abstract=av[4];
-        x.copyRight=av[5];
-        x.doi=av[6];
-        x.conflict=av[7];
+        x.publ = av[0];
+        x.title = av[1];
+        x.authors = av[2];
+        x.authInfo = av[3];
+        x.abstract = av[4];
+        x.copyRight = av[5];
+        x.doi = av[6];
+        x.conflict = av[7];
         return x
-    })
+    }
+    )
     return abs
 }
 
-async function embedTitleAbs(abs){
-    if(!abs){
+async function embedTitleAbs(abs) {
+    if (!abs) {
         abs = await absAssembler()
     }
-    for(let i=0 ; i<abs.length ; i++){
+    for (let i = 0; i < abs.length; i++) {
         let txti = `TITLE: ${abs[i].title} \nABSTRACT: ${abs[i].abstract}`
-        abs[i].embed = await embed(txti.slice(0,35000))
+        abs[i].embed = await embed(txti.slice(0, 35000))
         console.log(`Embedding ${i}/${abs.length}`)
     }
     return abs
@@ -231,12 +233,13 @@ async function embedTitleAbs(abs){
 
 // generate tensor tsv file
 
-async function json4tsvTensor(jsn){
-    if(!jsn){
-        jsn= await (await fetch('./embedTitleAbs.json')).json()
+async function json4tsvTensor(jsn) {
+    if (!jsn) {
+        jsn = await (await fetch('./embedTitleAbs.json')).json()
     }
-    jsn = jsn.map(x=>x.embed) // extract embeddings
-    let tsv = jsn.map(x=>x.join('\t')).join('\n')
+    jsn = jsn.map(x => x.embed)
+    // extract embeddings
+    let tsv = jsn.map(x => x.join('\t')).join('\n')
     return tsv
 }
 
@@ -254,27 +257,47 @@ async function assembleFromSource(url='https://raw.githubusercontent.com/epivers
 
 // create annotation files for existing embeddings, projector.tensorflow.org style
 
-async function metaCreatorBranches(docs,keyPmids){
-    if(!docs){
+async function metaCreatorBranches(docs, keyPmids) {
+    if (!docs) {
         docs = await assembleFromSource()
     }
-    if(!keyPmids){
-        keyPmids= await (await fetch(`https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/keyPmids.json`)).json()
+    if (!keyPmids) {
+        keyPmids = await (await fetch(`https://raw.githubusercontent.com/epiverse/pubCloud/refs/heads/main/keyPmids.json`)).json()
     }
     // get branches for keyPmids
-    let branches = keyPmids.map(ki=>{
-        let di = docs.filter(d=>(ki.toString().slice(0,8)==d.PubMedID))
-        console.log(ki,di)
-         return di[0].Branch
-        
-        //(38016281181).toString().slice(0,8))
-    })
+    let listOfBranches = []
+    let branches = keyPmids.map(ki => {
+        let di = docs.filter(d => (ki.toString().slice(0, 8) == d.PubMedID))
+        // console.log(ki,di)
+        let Branch = di[0].Branch
+        // clean branch description by removing /TDRP fetch
+        Branch = Branch.replace(/TDRP/g, '').replace(/"/g, '').replace(/\/+/g, ' ').replace(/[, ]+/g, ',').replace(/^\,/g, '').split(',').filter(x => x.length > 0)
+        listOfBranches = listOfBranches.concat(Branch)
+        return [...new Set(Branch)]
+
+    }
+    )
+    listOfBranches = [...new Set(listOfBranches)].sort()
+    // 11 DCEG branches
+
+    // assemble metadata file
+    // Column Header
+    let metaTSV = 'row\tBranches'
+    for (let j = 0; j < listOfBranches.length; j++) {
+        metaTSV += `\t${listOfBranches[j]}`
+    }
+    // Table body
+    for (let i = 0; i < branches.length; i++) {  // rows
+        metaTSV += `\n${i + 1}\t${branches[i].join(',')}`
+        for (let j = 0; j < listOfBranches.length; j++) {
+            metaTSV += `\t${listOfBranches[j]}`
+        }
+    }
+    saveFile(metaTSV, 'metaBranch.tsv')
     return branches
 }
 
-
-
-export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts,embeddAbstracts,parseAbs,absAssembler,embedTitleAbs,json4tsvTensor,metaCreatorBranches}
+export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts, embeddAbstracts, parseAbs, absAssembler, embedTitleAbs, json4tsvTensor, metaCreatorBranches}
 
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
 // embedPMID = (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID
