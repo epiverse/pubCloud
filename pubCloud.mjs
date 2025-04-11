@@ -294,6 +294,9 @@ async function metaCreatorBranches(docs, keyPmids) {
             //metaTSV += `\t${listOfBranches[j]}`
         }
     }
+    // replace no branch with 'none'
+    metaTSV=metaTSV.replace(/\t\t/g,'\tnone\t')
+    
     saveFile(metaTSV, 'metaBranch.tsv')
     return branches
 }
