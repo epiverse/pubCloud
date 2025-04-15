@@ -301,7 +301,15 @@ async function metaCreatorBranches(docs, keyPmids) {
     return branches
 }
 
-export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts, embeddAbstracts, parseAbs, absAssembler, embedTitleAbs, json4tsvTensor, metaCreatorBranches}
+// dt = await (await import('./pubCloud.mjs')).metaCreator()
+async function metaCreator(dtURL = './embedTitleAbs.json', attr=['pmid','title']){ // annotator
+    let dt = await (await fetch(dtURL)).json()
+    let txt = attr.join('\t')
+    return txt
+}
+
+
+export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts, embeddAbstracts, parseAbs, absAssembler, embedTitleAbs, json4tsvTensor, metaCreatorBranches, metaCreator}
 
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
 // embedPMID = (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID
