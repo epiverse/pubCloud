@@ -287,29 +287,84 @@ async function metaCreatorBranches(docs, keyPmids) {
         metaTSV += `\t${listOfBranches[j]}`
     }
     // Table body
-    for (let i = 0; i < branches.length; i++) {  // rows
+    for (let i = 0; i < branches.length; i++) {
+        // rows
         metaTSV += `\n${i + 1}\t${branches[i].join(',')}`
         for (let j = 0; j < listOfBranches.length; j++) {
-            metaTSV += `\t${branches[i].filter(x=>(x==listOfBranches[j])).length>0}`
+            metaTSV += `\t${branches[i].filter(x => (x == listOfBranches[j])).length > 0}`
             //metaTSV += `\t${listOfBranches[j]}`
         }
     }
     // replace no branch with 'none'
-    metaTSV=metaTSV.replace(/\t\t/g,'\tnone\t')
-    
+    metaTSV = metaTSV.replace(/\t\t/g, '\tnone\t')
+
     saveFile(metaTSV, 'metaBranch.tsv')
     return branches
 }
 
-// dt = await (await import('./pubCloud.mjs')).metaCreator()
-async function metaCreator(dtURL = './embedTitleAbs.json', attr=['pmid','title']){ // annotator
+// txt = await (await import('./pubCloud.mjs')).metaCreator()
+async function metaCreator(dtURL='./embedTitleAbs.json', attr=['pmid', 'title']) {
+    // annotator
     let dt = await (await fetch(dtURL)).json()
     let txt = attr.join('\t')
+    // head
+    for (let i = 0; i < dt.length; i++) {
+        //for(let i = 0 ; i<3 ; i++){
+        console.log(i, dt.length)
+        txt += `\n`
+        // start of ith row
+        for (let j = 0; j < attr.length; j++) {
+            txt += `${dt[i][attr[j]].replace(/[\n\t]/g, '')}\t`
+            let lala = 4
+        }
+    }
+    txt = txt.replace('\t\n', '\t')
+    saveFile(txt, attr.join('_') + '.tsv')
+    return txt
+}
+// creates custom annotation, for example, for a merged pmid and title
+async function metaTargetCreator(dtURL='./embedTitleAbs.json', attr=['pmid', 'title']) {
+    // annotator
+    let dt = await (await fetch(dtURL)).json()
+    let txt = attr.join('_')
+    // head
+    for (let i = 0; i < dt.length; i++) {
+        let row = ''
+        for (let j = 0; j < attr.length; j++) {
+            if (j == 0) {
+                row += `\n${attr[j]}:${dt[i][attr[j]].replaceAll(/[\t\n]/g, '')}`
+            } else {
+                row += ` ${dt[i][attr[j]].replaceAll(/[\t\n]/g, '')};`
+            }
+            let lala = 4
+        }
+        txt += row
+        console.log(i+1,dt.length)
+    }
+    txt = txt.replace('\t\n', '\t')
+    saveFile(txt, attr.join('_') + '.tsv')
     return txt
 }
 
+///
 
-export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts, embeddAbstracts, parseAbs, absAssembler, embedTitleAbs, json4tsvTensor, metaCreatorBranches, metaCreator}
+function mergeTables(tsv1, tsv2) {
+    // merge the text of two tsv files
+    //txt1 = await (await fetch('./metaBranch.tsv')).text()
+    //txt2 = await (await fetch('./pmid_title.tsv')).text()
+    //txt3 = mergeTables(txt1,txt2)
+    tsv1 = tsv1.split(/\n/)
+    tsv2 = tsv2.split(/\n/)
+    let tsv3 = tsv1.map( (r1, i) => {
+        let r2 = tsv2[i]
+        let r3 = `${r1}\t${r2}`
+        return r3
+    }
+    )
+    return tsv3.join('\n')
+}
+
+export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts, embeddAbstracts, parseAbs, absAssembler, embedTitleAbs, json4tsvTensor, metaCreatorBranches, metaCreator, mergeTables, metaTargetCreator}
 
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
 // embedPMID = (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID
