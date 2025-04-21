@@ -364,7 +364,41 @@ function mergeTables(tsv1, tsv2) {
     return tsv3.join('\n')
 }
 
-export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts, embeddAbstracts, parseAbs, absAssembler, embedTitleAbs, json4tsvTensor, metaCreatorBranches, metaCreator, mergeTables, metaTargetCreator}
+//generate full text for notebooklm
+
+async function notebooklm(attrs = ['id','title','abstract','year','date','journalTitle','authors','keywords'],docs){
+    if(!docs){
+        docs = (await (await fetch('dceg_publications_title-abstract_gemini.json')).json())
+    }
+    let n = docs.length
+    let m = attrs.length
+    let txt = attrs.join('\t') // header
+    for(let i=0 ; i<n ; i++){
+        console.log(i+1,'/',n)
+        let row='\n'
+        for(let j=0 ; j<m ; j++){
+            try{
+               if((attrs[j]=='authors')||(attrs[j]=='keywords')){
+                   //let lala = 4
+                   //console.log(i)
+                   row += docs[i].properties[attrs[j]].map(x=>x.name).join(',')
+                }else{
+                   row += docs[i].properties[attrs[j]]
+                }
+            }catch(err){
+                row += 'undefined'
+                console.log(i,err)
+            }
+            if(j!=m-1){
+                row+='\t'
+            }
+        }
+        txt+=row
+    } 
+    return txt
+}
+
+export {GEM, embed, embedPMID, embedPMIDs, readTextFile, saveFile, assembleFromSource, indexPubMedIDs, listPubMedIDs, getAllAbstracts, indexAbstracts, embeddAbstracts, parseAbs, absAssembler, embedTitleAbs, json4tsvTensor, metaCreatorBranches, metaCreator, mergeTables, metaTargetCreator,notebooklm}
 
 // embedPMID = (await import('./pubCloud.mjs')).embedPMID
 // embedPMID = (await import('https://epiverse.github.io/pubCloud/pubCloud.mjs')).embedPMID
